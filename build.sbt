@@ -1,6 +1,7 @@
 val Http4sVersion = "0.21.0"
 val CirceVersion = "0.13.0"
 val CirceConfigVersion = "0.6.1"
+val CirceEnumeratumVersion = "1.6.1"
 val Specs2Version = "4.8.3"
 val LogbackVersion = "1.2.3"
 val RefinedType = "0.9.13"
@@ -32,10 +33,11 @@ lazy val root = (project in file("."))
       "org.http4s"          %% "http4s-circe"           % Http4sVersion,
       "org.http4s"          %% "http4s-dsl"             % Http4sVersion,
       "io.circe"            %% "circe-generic"          % CirceVersion,
-      "io.circe"            %% "circe-literal"          % CirceVersion,
-      "io.circe"            %% "circe-generic-extras"   % CirceVersion,
-      "io.circe"            %% "circe-generic-extras"   % CirceVersion,
+      "io.circe"            %% "circe-core"             % CirceVersion,
+      "com.beachape"        %% "enumeratum-circe"       % CirceEnumeratumVersion,
+      "io.circe"            %% "circe-parser"           % CirceVersion,
       "io.circe"            %% "circe-refined"          % CirceVersion,
+      "io.circe"            %% "circe-shapes"           % CirceVersion,
       "org.specs2"          %% "specs2-core"            % Specs2Version % "test",
       "ch.qos.logback"      %  "logback-classic"        % LogbackVersion,
       "eu.timepit"          %% "refined"                % RefinedType,

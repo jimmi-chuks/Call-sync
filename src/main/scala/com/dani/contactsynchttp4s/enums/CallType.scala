@@ -1,45 +1,21 @@
 package com.dani.contactsynchttp4s.enums
 
-sealed abstract class CallType(val label: String)
+import enumeratum.EnumEntry.Lowercase
+import enumeratum._
+import skunk.Codec
+import skunk.codec.`enum`._
+import skunk.data.Type
 
-object CallType {
-  case object Missed extends CallType("missed")
-  case object Incoming extends CallType("incoming")
-  case object OutGoingFailed extends CallType("outgoingfailed")
-  case object OutGoingSuccess extends CallType("outgoingsuccess")
-  case object Unknown extends CallType("unknown")
+sealed trait CallType extends EnumEntry with Lowercase
 
-  val values = List(Missed, Incoming, OutGoingFailed, OutGoingSuccess, Unknown)
+object CallType extends Enum[CallType] with CirceEnum[CallType] {
+  case object Missed extends CallType
+  case object Incoming extends CallType
+  case object OutGoingFailed extends CallType
+  case object OutGoingSuccess extends CallType
+  case object Unknown extends CallType
 
-  def validate(label: String): Option[CallType] = values.find(_.label == label)
+  val values = findValues
 
-  def fromLabel(label: String): CallType = values.find(_.label == label) match {
-    case Some(value) => value
-    case None =>CallType.Unknown
-  }
-
-
-
+  val callTypeCodec: Codec[CallType] = enum(CallType, Type("calltype"))
 }
-
-//import enumeratum._
-//import enumeratum.EnumEntry.Lowercase
-//import skunk.Codec
-//import skunk.codec.`enum`.`enum`
-//import skunk.data.Type
-//
-//
-//sealed trait CallType extends EnumEntry with Lowercase
-//
-//object CallType extends Enum[CallType] {
-//  case object Missed extends CallType
-//  case object Incoming extends CallType
-//  case object OutGoingFailed extends CallType
-//  case object OutGoingSuccess extends CallType
-//  case object Unknown extends CallType
-//
-//  val values = findValues
-//
-//  val callType: Codec[CallType] = enum(CallType, Type("calltype"))
-//}
-
