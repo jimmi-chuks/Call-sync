@@ -3,7 +3,6 @@ package com.dani.contactsynchttp4s.http.routes
 import cats._
 import cats.implicits._
 import com.dani.contactsynchttp4s.algebras.CallActionService
-import com.dani.contactsynchttp4s.domain.auth._
 import com.dani.contactsynchttp4s.domain.callAction.{CallId, CreateCallActionParam}
 import com.dani.contactsynchttp4s.effects._
 import com.dani.contactsynchttp4s.http.auth.user.CommonUser
@@ -13,7 +12,6 @@ import org.http4s._
 import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.{AuthMiddleware, Router}
-import com.dani.contactsynchttp4s.algebras.Auth
 
 
 final class CallActionRoutes[F[_]: Defer: JsonDecoder: MonadThrow](

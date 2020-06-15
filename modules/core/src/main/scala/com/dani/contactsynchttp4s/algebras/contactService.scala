@@ -1,14 +1,14 @@
 package com.dani.contactsynchttp4s.algebras
 
-import cats.effect.{Resource, Sync}
+import cats.effect.{ Resource, Sync }
+import cats.implicits._
 import com.dani.contactsynchttp4s.domain.auth.UserId
 import com.dani.contactsynchttp4s.domain.contact._
-import com.dani.contactsynchttp4s.effects.{BracketThrow, GenUUID}
+import com.dani.contactsynchttp4s.effects.{ BracketThrow, GenUUID }
 import com.dani.contactsynchttp4s.ext.skunkx._
-import skunk.codec.all.{uuid, varchar}
+import skunk.codec.all.{ uuid, varchar }
 import skunk.implicits._
-import cats.implicits._
-import skunk.{Command, Decoder, Query, Session, _}
+import skunk.{ Command, Decoder, Query, Session, _ }
 
 trait ContactService[F[_]] {
   def getContactsBy(callerId: UserId): F[List[Contact]]
@@ -18,13 +18,13 @@ trait ContactService[F[_]] {
 
 object LiveContactService {
   def make[F[_]: Sync](
-    sessionPool: Resource[F, Session[F]]
+      sessionPool: Resource[F, Session[F]]
   ): F[ContactService[F]] =
     Sync[F].delay(new LiveContactService[F](sessionPool))
 }
 
-final class LiveContactService[F[_]: BracketThrow: GenUUID : Sync] private (
-  sessionPool: Resource[F, Session[F]]
+final class LiveContactService[F[_]: BracketThrow: GenUUID: Sync] private (
+    sessionPool: Resource[F, Session[F]]
 ) extends ContactService[F] {
   import ContactQueries._
 
@@ -47,7 +47,8 @@ final class LiveContactService[F[_]: BracketThrow: GenUUID : Sync] private (
       session.prepare(insertContact).use { cmd =>
         GenUUID[F].make[ContactId].flatMap { id =>
           cmd
-            .execute(id ~ createContact).as(id)
+            .execute(id ~ createContact)
+            .as(id)
         }
       }
     }
@@ -56,17 +57,17 @@ final class LiveContactService[F[_]: BracketThrow: GenUUID : Sync] private (
 private object ContactQueries {
 
   val decoder: Decoder[Contact] =
-    (uuid.cimap[ContactId] ~ varchar.cimap[PhoneNumber] ~ uuid ~ varchar
-      .cimap[SavedName]).map {
+    (uuid.cimap[ContactId] ~ varchar.cimap[PhoneNumber] ~
+      uuid ~ varchar.cimap[SavedName]).map {
       case c ~ p ~ _ ~ s => Contact(c, p, s)
     }
 
   val encoder: Encoder[ContactId ~ CreateContact] =
     (
       uuid.cimap[ContactId] ~
-        varchar.cimap[PhoneNumber] ~
-        varchar.cimap[SavedName] ~
-        uuid.cimap[UserId]
+          varchar.cimap[PhoneNumber] ~
+          varchar.cimap[SavedName] ~
+          uuid.cimap[UserId]
     ).contramap {
       case id ~ c =>
         id ~ c.phoneNumber ~ c.savedName ~ c.ownerId

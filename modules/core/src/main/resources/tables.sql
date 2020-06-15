@@ -27,8 +27,8 @@ create TABLE calls(
     number VARCHAR NOT NULL,
     call_time INT8 NOT NULL,
     device_info VARCHAR NOT NULL,
-    call_duration INT8 NOT NULL
+    call_duration INT8 NOT NULL,
     CONSTRAINT caller_id_fkey FOREIGN KEY (caller_id)
     REFERENCES users (uuid) MATCH SIMPLE
-    ON UPDATE NO ACTION DELETE NO ACTION
+    ON UPDATE NO ACTION ON DELETE NO ACTION
 );
