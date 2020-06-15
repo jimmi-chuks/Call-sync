@@ -21,8 +21,21 @@ val kindProjector    = "0.11.0"
 
 lazy val root = (project in file("."))
   .settings(
+    name := "contact-sync-http4s"
+  )
+  .aggregate(core)
+
+lazy val core = (project in file("modules/core"))
+  .enablePlugins(DockerPlugin)
+  .enablePlugins(AshScriptPlugin) // script is Bash-specific, which is not compatible with the Ash3 shell used by Docker, and thus making it impossible to run our application. This fixes it
+  .settings(
     organization := "com.dani",
-    name := "contact-sync-http4s",
+    name := "contact-sync-http4s-core",
+    packageName in Docker := "contact-sync",
+    dockerExposedPorts ++= Seq(8080),
+    dockerUpdateLatest := true,
+    dockerBaseImage := "openjdk:8u201-jre-alpine3.9",
+    makeBatScripts := Seq(),
     version := "0.0.1-SNAPSHOT",
     resolvers += Resolver.sonatypeRepo("snapshots"),
     scalaVersion := "2.13.1",
