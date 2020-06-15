@@ -15,8 +15,18 @@ object contact {
   @newtype case class PhoneNumber(value: String)
   @newtype case class SavedName(value: String)
   @newtype case class ContactId(value: UUID)
+  @newtype case class ContactParam(value: NonEmptyString)
 
   case class Contact(contactId: ContactId, number: PhoneNumber, savedName: SavedName)
+
+//  @newtype case class BrandName(value: String) {
+//    def toBrand(brandId: BrandId): Brand =
+//      Brand(brandId, this)
+//  }
+//
+//  @newtype case class BrandParam(value: NonEmptyString) {
+//    def toDomain: BrandName = BrandName(value.value.toLowerCase.capitalize)
+//  }
 
   // ------ Create Item ---------
   @newtype case class PhoneNumberParam(value: PhoneNumberType)

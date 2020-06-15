@@ -3,8 +3,7 @@ package com.dani.contactsynchttp4s.http.routes
 import cats._
 import cats.implicits._
 import com.dani.contactsynchttp4s.algebras.ContactService
-import com.dani.contactsynchttp4s.domain.auth.UserId
-import com.dani.contactsynchttp4s.domain.contact.{ContactId, CreateContact, CreateContactParam}
+import com.dani.contactsynchttp4s.domain.contact.{ContactId, CreateContactParam}
 import com.dani.contactsynchttp4s.effects.MonadThrow
 import com.dani.contactsynchttp4s.http.auth.user.CommonUser
 import com.dani.contactsynchttp4s.http.decoder._
@@ -20,8 +19,6 @@ final class ContactRoutes[F[_]: Defer: JsonDecoder: MonadThrow](
 
   private[routes] val prefixPath = "/contact"
 
-  object ContactQueryParam extends QueryParamDecoderMatcher[ContactId]("contact")
-
   private val httpRoutes: AuthedRoutes[CommonUser, F] = AuthedRoutes.of {
 
     case ar @ POST -> Root as user =>
@@ -34,8 +31,8 @@ final class ContactRoutes[F[_]: Defer: JsonDecoder: MonadThrow](
     case GET -> Root as user  =>
       Ok(contactService.getContactsBy(user.value.userId))
 
-    case GET -> Root :? ContactQueryParam(contact) as user =>
-      Ok(contactService.getContactBy(user.value.userId, contact))
+    case GET -> Root / UUIDVar(contactId) as user =>
+      Ok(contactService.getContactBy(user.value.userId, ContactId(contactId)))
   }
 
   def routes(authMiddleware: AuthMiddleware[F, CommonUser]): HttpRoutes[F] = Router(

@@ -20,7 +20,7 @@ final class LogoutRoutes[F[_]: Defer: Monad](
     case ar @ POST -> Root / "logout" as user =>
       AuthHeaders
         .getBearerToken(ar.req)
-        .traverse_(t => auth.logout(t, user.value.name)) *> NoContent()
+        .traverse_(t => auth.logout(t, user.value.userId)) *> NoContent()
 
   }
 

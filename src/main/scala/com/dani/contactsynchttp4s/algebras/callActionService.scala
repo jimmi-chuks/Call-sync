@@ -25,7 +25,7 @@ object LiveCallActionService {
     Sync[F].delay(new LiveCallActionService[F](sessionPool))
 }
 
-final class LiveCallActionService[F[_]: BracketThrow: GenUUID] private (
+final class LiveCallActionService[F[_]: BracketThrow: GenUUID: Sync] private (
   sessionPool: Resource[F, Session[F]]
 ) extends CallActionService[F] {
 
@@ -44,7 +44,8 @@ final class LiveCallActionService[F[_]: BracketThrow: GenUUID] private (
   override def findAllUserCallActions(userId: UserId): F[List[CallAction]] =
     sessionPool.use { session =>
       session.prepare(selectAllByCaller).use { q =>
-        q.stream(userId, chunkSize = 1024).compile.toList
+        q.stream(userId, chunkSize = 1024).compile.toList // needs an implicit definition for sync to work
+        // https://twitter.com/djspiewak/status/1004128360740470784
       }
     }
 
@@ -59,14 +60,14 @@ final class LiveCallActionService[F[_]: BracketThrow: GenUUID] private (
 
 private object CallQueries {
 
-//  val myenum = enum[CallType](_.label, CallType.fromLabel, Type("calltype"))
+import com.dani.contactsynchttp4s.enums.CallType.callTypeCodec
 
   val decoder: Decoder[CallAction] =
-    (uuid ~ uuid ~ varchar ~ varchar ~ int8 ~ varchar ~ int8).map {
+    (uuid ~ uuid ~ callTypeCodec ~ varchar ~ int8 ~ varchar ~ int8).map {
       case id ~ _ ~ ct ~ pn ~ ti ~ di ~ cd =>
         CallAction(
           CallId(id),
-          CallType.fromLabel(ct),
+          ct,
           PhoneNumber(pn),
           CallTime(ti),
           DeviceInfo(di),
@@ -77,7 +78,7 @@ private object CallQueries {
   val encoder: Encoder[CallId ~ CreateCallAction] =
     (
       uuid.cimap[CallId] ~
-        varchar.cimap[CallType] ~
+        callTypeCodec.asEncoder ~
         varchar.cimap[PhoneNumber] ~
         int8.cimap[CallTime] ~
         varchar.cimap[DeviceInfo] ~
@@ -90,14 +91,14 @@ private object CallQueries {
   val selectAllByCaller: Query[UserId, CallAction] =
     sql"""
           SELECT * FROM calls
-          WHERE caller_id = ${varchar.cimap[UserId]}
+          WHERE caller_id = ${uuid.cimap[UserId]}
          """.query(decoder)
 
   val selectCallByCallerAndCallId: Query[CallId ~ UserId, CallAction] =
     sql"""
           SELECT * FROM calls
-          WHERE uuid = ${varchar.cimap[CallId]}
-          AND caller_id = ${varchar.cimap[UserId]}
+          WHERE uuid = ${uuid.cimap[CallId]}
+          AND caller_id = ${uuid.cimap[UserId]}
          """.query(decoder)
 
   val insertCallAction: Command[CallId ~ CreateCallAction] =

@@ -23,7 +23,7 @@ object LiveContactService {
     Sync[F].delay(new LiveContactService[F](sessionPool))
 }
 
-final class LiveContactService[F[_]: BracketThrow: GenUUID] private (
+final class LiveContactService[F[_]: BracketThrow: GenUUID : Sync] private (
   sessionPool: Resource[F, Session[F]]
 ) extends ContactService[F] {
   import ContactQueries._
@@ -75,7 +75,7 @@ private object ContactQueries {
   val selectAllByOwner: Query[UserId, Contact] =
     sql""""
           SELECT * FROM contacts
-          WHERE owner_id = ${varchar.cimap[UserId]}
+          WHERE owner_id = ${uuid.cimap[UserId]}
     """.query(decoder)
 
   val selectByUserIdAndContactId: Query[UserId ~ ContactId, Contact] =

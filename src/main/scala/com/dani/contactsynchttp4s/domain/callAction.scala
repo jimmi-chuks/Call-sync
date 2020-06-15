@@ -34,7 +34,7 @@ object callAction {
   @newtype case class CallDurationParam(value: Long)
 
   case class CreateCallActionParam(
-      callTypeParam: CallTypeParam,
+      callType: CallType,
       phoneNumberParam: PhoneNumberParam,
       callTime: Long,
       deviceInfoParam: DeviceInfoParam,
@@ -43,7 +43,7 @@ object callAction {
   ) {
 
     def toDomain: CreateCallAction = CreateCallAction(
-      CallType.fromLabel(callTypeParam.value.value),
+      callType,
       PhoneNumber(phoneNumberParam.value.value),
       CallTime(callTime),
       DeviceInfo(deviceInfoParam.value.value),

@@ -13,12 +13,10 @@ object Algebras {
       sessionPool: Resource[F, Session[F]]
   ): F[Algebras[F]] =
     for {
-      userService <- LiveUserService.make[F](sessionPool)
       contactService <- LiveContactService.make[F](sessionPool)
       callActionService <- LiveCallActionService.make[F](sessionPool)
       healthCheck <- LiveHealthCheck.make[F](sessionPool, redis)
     } yield new Algebras[F](
-      userService,
       contactService,
       callActionService,
       healthCheck
@@ -26,7 +24,6 @@ object Algebras {
 }
 
 final class Algebras[F[_]] private (
-    val userService: UserService[F],
     val contactService: ContactService[F],
     val callActionService: CallActionService[F],
     val healthCheck: HealthCheck[F]

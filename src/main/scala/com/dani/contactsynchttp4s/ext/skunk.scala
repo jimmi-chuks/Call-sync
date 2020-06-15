@@ -11,4 +11,9 @@ object skunkx {
       codec.imap(_.coerce[A])(_.repr.asInstanceOf[B])
   }
 
+//  implicit class CodecOps[B](codec: Codec[B]) {
+//    def cimap[A: Coercible[B, *]](implicit ev: Coercible[A, B]): Codec[A] =
+//      codec.imap(_.coerce[A])((ev(_)))
+//  }
+
 }

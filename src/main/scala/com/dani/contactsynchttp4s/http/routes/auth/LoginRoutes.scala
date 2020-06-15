@@ -5,6 +5,7 @@ import cats.implicits._
 import com.dani.contactsynchttp4s.algebras.Auth
 import com.dani.contactsynchttp4s.domain.auth.{InvalidFacebookId, InvalidGoogleIdId, InvalidUserOrPassword, LoginUser}
 import com.dani.contactsynchttp4s.effects.MonadThrow
+import com.dani.contactsynchttp4s.enums.SignUpType
 import org.http4s._
 import org.http4s.circe.JsonDecoder
 import org.http4s.dsl.Http4sDsl
